@@ -1,0 +1,158 @@
+# APP设计文档
+
+## 项目概述
+
+这是一个用于展示APP产品功能的PC端网页应用，通过安卓样机（18:9长宽比）直观呈现各功能页面，风格简约现代化，适配企业内部系统需求。采用Vue 3 + TypeScript + Vite + Vant UI实现。
+
+## 核心功能
+
+### 1. 展示页面
+  - 平铺展示APP功能页面，每个页面用统一安卓样机包裹（含固定状态栏）
+  - 样机下方标注页面名称，点击名称跳转当前页面预览模式
+
+### 2. 预览模式
+  - 全屏展示单个页面
+  - 支持页面间跳转
+  - 右侧显示页面说明文档
+
+## 技术实现
+- 框架：Vue 3 + TypeScript + Vite
+- UI组件：Vant
+- 页面渲染：Vue Router
+- 页面内容：HTML片段
+- 页面说明：Markdown
+- 数据：MockJS模拟接口
+
+## 项目结构
+
+```
+├── index.html           # 入口HTML文件
+├── public/              # 静态资源目录
+│   └── vite.svg         # 网站图标
+├── src/                 # 源代码目录
+│   ├── assets/          # 资源文件
+│   ├── components/      # 公共组件
+│   │   ├── MarkdownViewer/  # Markdown渲染组件
+│   │   └── PhoneFrame/      # 手机样机组件
+│   ├── mock/            # 模拟数据
+│   ├── router/          # 路由配置
+│   ├── views/           # 页面组件
+│   │   ├── Home.vue     # 主展示页面
+│   │   ├── Preview.vue  # 预览页面
+│   │   ├── HomePage/    # 示例首页功能
+│   │   │   ├── index.vue  # 页面组件
+│   │   │   └── README.md  # 示例页面说明文档
+│   │   └── SubmitSuccess/ # 示例提交成功页面
+│   │       ├── index.vue  # 页面组件
+│   │       └── README.md  # 示例页面说明文档
+│   ├── App.vue          # 根组件
+│   └── main.ts          # 入口文件
+├── vite.config.ts       # Vite配置
+├── package.json         # 项目依赖
+├── tsconfig.json        # TypeScript配置入口
+├── tsconfig.app.json    # 应用TypeScript配置
+└── tsconfig.node.json   # Node.js TypeScript配置
+```
+
+## 页面管理指南
+
+### 添加新页面
+
+1. **创建页面目录和文件**
+
+   在 `src/views/` 目录下创建新的页面目录，例如 `NewPage`，并添加以下文件：
+   
+   ```
+   src/views/NewPage/
+   ├── index.vue    # 页面组件
+   └── README.md    # 页面说明文档
+   ```
+
+2. **编写页面组件**
+
+   在 `index.vue` 中实现页面内容;
+
+3. **编写页面说明文档**
+
+   在 `README.md` 中添加页面说明;
+   支持使用mermaid语法绘制流程图;
+
+4. **注册路由**
+
+   在 `src/router/index.ts` 文件中添加页面组件导入和配置：
+
+   ```typescript
+   // 在pageComponents中添加
+   const pageComponents: PageComponentsMap = {
+     // 已有内容...
+     'new-page': () => import('../views/NewPage/index.vue'),
+   }
+
+   // 在appPages中添加
+   const appPages = [
+     // 已有内容...
+     {
+       id: 'new-page',
+       title: '新页面',
+       path: '/new-page',
+       docPath: '/src/views/NewPage/README.md',
+       color: '#ff9800', // 页面主题色
+       icon: 'star-o',   // 页面图标
+       description: '新页面的简要描述'
+     }
+   ];
+   ```
+
+### 删除页面
+
+1. **删除页面文件**
+
+   删除 `src/views/` 目录下对应的页面目录及其文件。
+
+2. **移除路由配置**
+
+   在 `src/router/index.ts` 文件中：
+   
+   - 从 `pageComponents` 中移除对应页面的导入
+   - 从 `appPages` 数组中移除对应页面的配置
+
+   ```typescript
+   // 移除以下内容
+   'page-to-remove': () => import('../views/PageToRemove/index.vue'),
+
+   // 移除以下对象
+   {
+     id: 'page-to-remove',
+     title: '要删除的页面',
+     // 其他配置...
+   }
+   ```
+
+## 开发指南
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 启动开发服务器
+
+```bash
+npm run dev
+```
+
+### 构建生产版本
+
+```bash
+npm run build
+```
+
+## 样式规范
+
+请参考项目中的现有组件和页面，保持一致的样式和交互体验。主要样式规范包括：
+
+- 页面内边距：16px
+- 元素间距：8px（小）、12px（中）、24px（大）
+- 文字大小：12px-24px不等，根据重要程度选择
+- 主题色：参考Vant UI的主题色系统
