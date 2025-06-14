@@ -13,9 +13,8 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-.trae/*
-!.vscode/extensions.json
+.vscode/
+.trae/
 .idea
 .DS_Store
 *.suo
