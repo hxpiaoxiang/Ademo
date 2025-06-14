@@ -33,8 +33,8 @@ function copyMarkdownPlugin(): Plugin {
           if (entry.isDirectory()) {
             copyDir(srcPath, destPath)
           }
-          // 如果是 Markdown 文件，复制到目标目录
-          else if (entry.name.endsWith('.md')) {
+          // 复制除vue文件外的所有文件到目标目录
+          else if (!entry.name.endsWith('.vue')) {
             fs.copyFileSync(srcPath, destPath)
             console.log(`Copied: ${srcPath} -> ${destPath}`)
           }

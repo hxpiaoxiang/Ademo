@@ -36,9 +36,9 @@ setInterval(() => {
       <div class="status-bar">
         <span class="time">{{ currentTime }}</span>
         <div class="status-icons">
-          <van-icon name="wifi" />
-          <van-icon name="signal" />
-          <van-icon name="battery-o" />
+          <font-awesome-icon icon="wifi" />
+          <font-awesome-icon icon="signal" />
+          <font-awesome-icon icon="battery-three-quarters" />
         </div>
       </div>
       
@@ -47,8 +47,6 @@ setInterval(() => {
         <slot></slot>
       </div>
     </div>
-    
-    <!-- 页面标题已移除 -->
   </div>
 </template>
 
@@ -84,7 +82,14 @@ setInterval(() => {
 
 .status-icons {
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  align-items: center;
+}
+
+.status-icons svg {
+  width: 14px;
+  height: 14px;
+  color: #333;
 }
 
 .phone-content {

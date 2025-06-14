@@ -26,10 +26,19 @@ const loading = ref(false);
 // 加载错误信息
 const error = ref('');
 
-// 配置marked解析器，使其能够正确处理mermaid代码块
-const configureMermaidRenderer = () => {
+// 获取文档的基础路径，用于处理图片等相对路径资源
+const getDocBasePath = (docPath: string): string => {
+  // 从文档路径中提取基础目录路径
+  const lastSlashIndex = docPath.lastIndexOf('/');
+  return lastSlashIndex !== -1 ? docPath.substring(0, lastSlashIndex + 1) : '/';
+};
+
+// 配置marked解析器，处理mermaid代码块和图片路径
+const configureMermaidRenderer = (docPath: string) => {
   const renderer = new marked.Renderer();
   const originalCodeRenderer = renderer.code.bind(renderer);
+  const originalImageRenderer = renderer.image.bind(renderer);
+  const basePath = getDocBasePath(docPath);
   
   // 重写code渲染器，特殊处理mermaid代码块
   renderer.code = (code, language, escaped) => {
@@ -39,8 +48,41 @@ const configureMermaidRenderer = () => {
     return originalCodeRenderer(code, language, escaped);
   };
   
+  // 重写image渲染器，处理图片路径
+  renderer.image = (href, title, text) => {
+    // 如果href是相对路径（不以http://、https://或/开头），则将其转换为基于文档路径的路径
+    if (href && !href.match(/^(https?:\/\/|\/)/) && basePath) {
+      href = basePath + href;
+    }
+    
+    // 使用原始渲染器生成HTML
+    return originalImageRenderer(href, title, text);
+  };
+  
   // 应用自定义渲染器
   marked.setOptions({ renderer });
+};
+
+// 处理Markdown中的图片尺寸语法 =WIDTHxHEIGHT
+const processImageSizeInMarkdown = (text: string): string => {
+  // 匹配 ![alt](url =WIDTHxHEIGHT) 格式
+  return text.replace(/!\[(.*?)\]\((.*?)\s+=\s*(\d+)x(\d+)\s*\)/g, (match, alt, url, width, height) => {
+    console.log(`处理图片尺寸: ${match}`);
+    return `<img src="${url}" alt="${alt || ''}" style="width:${width}px;height:${height}px;">`;
+  });
+};
+
+
+/**
+ * 处理HTML内容中的img标签src属性
+ * 将相对路径转换为基于文档路径的绝对路径
+ */
+const processHtmlImgTags = (html: string, basePath: string): string => {
+  // 使用正则表达式匹配所有img标签
+  return html.replace(/<img([^>]*)src=['"](?!https?:\/\/)(?!\/)([^'"]+)['"]([^>]*)>/gi, (match, beforeSrc, src, afterSrc) => {
+    // 将相对路径转换为基于文档路径的路径
+    return `<img${beforeSrc}src="${basePath}${src}"${afterSrc}>`;
+  });
 };
 
 // 加载markdown文档
@@ -51,15 +93,28 @@ const loadMarkdown = async (path: string) => {
   error.value = '';
   
   try {
-    // 配置marked解析器
-    configureMermaidRenderer();
+    // 配置marked解析器，传入文档路径以处理相对路径
+    configureMermaidRenderer(path);
     
     const response = await fetch(path);
     if (!response.ok) {
       throw new Error(`加载文档失败: ${response.status} ${response.statusText}`);
     }
-    const text = await response.text();
-    docContent.value = marked(text);
+    
+    // 获取原始文本
+    let text = await response.text();
+    
+    // 处理图片尺寸语法
+    text = processImageSizeInMarkdown(text);
+    
+    // 使用marked解析处理后的文本
+    let html = marked(text);
+    
+    // 处理HTML内容中的img标签
+    const basePath = getDocBasePath(path);
+    html = processHtmlImgTags(html, basePath);
+    
+    docContent.value = html;
   } catch (err) {
     console.error('加载文档失败:', err);
     error.value = err instanceof Error ? err.message : '加载文档失败';

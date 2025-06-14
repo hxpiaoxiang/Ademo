@@ -3,6 +3,20 @@
  * 首页组件
  * 用于展示APP首页内容
  */
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+/**
+ * 功能项点击处理函数
+ * @param index 功能项索引
+ */
+const handleFeatureClick = (index: number) => {
+  // 当点击功能1时，跳转到提交成功页面
+  if (index === 1) {
+    router.push('/preview/submit-success');
+  }
+};
 </script>
 
 <template>
@@ -11,7 +25,7 @@
       <h2>我的应用</h2>
     </div>
     <div class="feature-grid">
-      <div class="feature-item" v-for="i in 6" :key="i">
+      <div class="feature-item" v-for="i in 6" :key="i" @click="handleFeatureClick(i)" :class="{ 'clickable': i === 1 }">
         <div class="feature-icon"></div>
         <div class="feature-name">功能{{ i }}</div>
       </div>
@@ -150,6 +164,27 @@
 
 .feature-name {
   font-size: 12px;
+}
+
+/* 可点击的功能项样式 */
+.feature-item.clickable {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.feature-item.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-item.clickable .feature-icon {
+  background-color: #07c160; /* 使用提交成功页面的绿色 */
+}
+
+.feature-item.clickable .feature-name {
+  color: #07c160;
+  font-weight: 500;
 }
 
 .news-list {
