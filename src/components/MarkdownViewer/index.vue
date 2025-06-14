@@ -32,11 +32,11 @@ const configureMermaidRenderer = () => {
   const originalCodeRenderer = renderer.code.bind(renderer);
   
   // 重写code渲染器，特殊处理mermaid代码块
-  renderer.code = (code, language) => {
+  renderer.code = (code, language, escaped) => {
     if (language === 'mermaid') {
       return `<pre class="mermaid">${code}</pre>`;
     }
-    return originalCodeRenderer(code, language);
+    return originalCodeRenderer(code, language, escaped);
   };
   
   // 应用自定义渲染器
@@ -101,9 +101,17 @@ const renderMermaidDiagrams = async () => {
     
     if (elements.length > 0) {
       // 重置已处理的图表，避免重复渲染错误
-      // 在mermaid 11.6.0中，reset方法已移至configApi
-      if (mermaid.configApi && typeof mermaid.configApi.reset === 'function') {
-        mermaid.configApi.reset();
+      // 在mermaid 11.6.0中，reset方法可能已经改变位置或移除
+      try {
+        // 尝试使用新版API重置配置
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'default',
+          securityLevel: 'loose',
+          fontFamily: 'sans-serif'
+        });
+      } catch (e) {
+        console.warn('重置mermaid配置失败:', e);
       }
       
       // 渲染每个mermaid图表
@@ -111,12 +119,17 @@ const renderMermaidDiagrams = async () => {
         const id = `mermaid-diagram-${index}`;
         element.id = id;
         try {
-          mermaid.run({
-            nodes: [element]
-          });
+          // 确保element是HTMLElement类型
+          if(element instanceof HTMLElement) {
+            mermaid.run({
+              nodes: [element]
+            });
+          }
         } catch (err) {
           console.error('渲染Mermaid图表失败:', err);
-          element.innerHTML = `<div class="mermaid-error">图表渲染失败: ${err.message}</div>`;
+          // 确保err是Error类型
+          const errorMessage = err instanceof Error ? err.message : '未知错误';
+          element.innerHTML = `<div class="mermaid-error">图表渲染失败: ${errorMessage}</div>`;
         }
       });
     }

@@ -3,7 +3,7 @@
  * 预览页面组件
  * 用于根据路由参数加载对应的页面内容进行预览
  */
-import { ref, computed, shallowRef, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import PhoneFrame from '../components/PhoneFrame/index.vue';
 import MarkdownViewer from '../components/MarkdownViewer/index.vue';

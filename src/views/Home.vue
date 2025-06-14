@@ -3,9 +3,9 @@
  * 展示页面组件
  * 用于展示APP所有功能页面列表
  */
-import { ref, shallowRef, defineAsyncComponent } from 'vue';
+import { ref, defineAsyncComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { Icon as VanIcon, Popup, Button } from 'vant';
+import { Icon as VanIcon } from 'vant';
 import PhoneFrame from '../components/PhoneFrame/index.vue';
 // 导入页面组件映射和页面配置
 import { pageComponents, appPages } from '../router';
